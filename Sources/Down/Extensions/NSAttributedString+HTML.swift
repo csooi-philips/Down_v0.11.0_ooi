@@ -32,11 +32,19 @@ extension NSAttributedString {
         guard let data = htmlString.data(using: String.Encoding.utf8) else {
             throw DownErrors.htmlDataConversionError
         }
-
-        let options: [NSAttributedString.DocumentReadingOptionKey: Any] = [
-            .documentType: NSAttributedString.DocumentType.html,
-            .characterEncoding: NSNumber(value: String.Encoding.utf8.rawValue)
-        ]
+        var options: [NSAttributedString.DocumentReadingOptionKey: Any]
+        if #available(iOS 18.0, *) {
+            options = [
+                .documentType: NSAttributedString.DocumentType.html,
+                .characterEncoding: NSNumber(value: String.Encoding.utf8.rawValue),
+               .textKit1ListMarkerFormatDocumentOption: true
+            ]
+        } else {
+            options = [
+                .documentType: NSAttributedString.DocumentType.html,
+                .characterEncoding: NSNumber(value: String.Encoding.utf8.rawValue)
+            ]
+        }
 
         try self.init(data: data, options: options, documentAttributes: nil)
     }

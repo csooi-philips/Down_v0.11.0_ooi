@@ -1,0 +1,28 @@
+--- Sources/Down/Extensions/NSAttributedString+HTML.swift	2025-03-28 15:33:16
++++ Sources/Down/Extensions/NSAttributedString+HTML.swift	2025-03-28 12:09:08
+@@ -32,12 +32,20 @@
+         guard let data = htmlString.data(using: String.Encoding.utf8) else {
+             throw DownErrors.htmlDataConversionError
+         }
++        var options: [NSAttributedString.DocumentReadingOptionKey: Any]
++        if #available(iOS 18.0, *) {
++            options = [
++                .documentType: NSAttributedString.DocumentType.html,
++                .characterEncoding: NSNumber(value: String.Encoding.utf8.rawValue),
++               .textKit1ListMarkerFormatDocumentOption: true
++            ]
++        } else {
++            options = [
++                .documentType: NSAttributedString.DocumentType.html,
++                .characterEncoding: NSNumber(value: String.Encoding.utf8.rawValue)
++            ]
++        }
+ 
+-        let options: [NSAttributedString.DocumentReadingOptionKey: Any] = [
+-            .documentType: NSAttributedString.DocumentType.html,
+-            .characterEncoding: NSNumber(value: String.Encoding.utf8.rawValue)
+-        ]
+-
+         try self.init(data: data, options: options, documentAttributes: nil)
+     }
+ 
