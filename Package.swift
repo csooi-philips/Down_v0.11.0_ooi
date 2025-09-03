@@ -1,43 +1,41 @@
-// swift-tools-version:5.3
+// swift-tools-version: 5.9
 
 import PackageDescription
 
 let package = Package(
     name: "Down",
     platforms: [
-        .macOS("10.11"),
-        .iOS("9.0"),
-        .tvOS("9.0")
+        .iOS("15.0") // bump to match MarkdownUI’s mins
     ],
     products: [
-        .library(
-            name: "Down",
-            targets: ["Down"]
-        )
+        .library(name: "Down", targets: ["Down"])
+    ],
+    dependencies: [
+        // Use the same cmark as MarkdownUI
+        .package(url: "https://github.com/swiftlang/swift-cmark", from: "0.4.0"),
     ],
     targets: [
+        // Swift shim named *libcmark* that re-exports cmark-gfm
         .target(
             name: "libcmark",
-            dependencies: [],
-            path: "Sources/cmark",
-            exclude: [
-              "include",
-              "case_fold_switch.inc",
-              "entities.inc",
-              "COPYING"
+            dependencies: [
+                .product(name: "cmark-gfm", package: "swift-cmark"),
+                .product(name: "cmark-gfm-extensions", package: "swift-cmark"),
             ],
-            publicHeadersPath: "./"
+            path: "Sources/libcmark"
         ),
+
         .target(
             name: "Down",
             dependencies: ["libcmark"],
             path: "Sources/Down",
             exclude: ["Down.h"],
-          resources: [
-            .copy("Resources/DownView.bundle"),
-            .copy("Resources/DownView (macOS).bundle"),
-          ]
+            resources: [
+                .copy("Resources/DownView.bundle"),
+                .copy("Resources/DownView (macOS).bundle"),
+            ]
         ),
+
         .testTarget(
             name: "DownTests",
             dependencies: ["Down"],
